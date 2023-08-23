@@ -11,7 +11,7 @@ class Review(models.Model):
     """Отзывы пользователей и их контент."""
 
     title = models.ForeignKey(
-        Title, on_delete=models.CASCADE,
+        'Title', on_delete=models.CASCADE,
         related_name='reviews',
         verbose_name='Рецензируемое произведение'
     )
@@ -159,4 +159,3 @@ class GenreTitle(models.Model):
             fields=('title', 'genre'),
             name='genre_title_uniq'),
         )
-
