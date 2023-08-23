@@ -12,6 +12,7 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.utils.crypto import get_random_string
+from rest_framework.exceptions import ValidationError
 
 
 User = get_user_model()
@@ -21,15 +22,20 @@ class SignupView(CreateAPIView):
     '''Создание пользователя.
     Сразу после создания на указанный адрес отправляется 
     письмо для подтверждения'''
-
-    EMAIL_DATA = {}
-    EMAIL_DATA['subject'] = 'Confirmation Code'
-    EMAIL_DATA['from_email'] = 'no_reply@example.test'
-    EMAIL_DATA['fail_silently'] = False
     
     queryset = User.objects.all()
     serializer_class = UserSerializerForAuth
     permission_classes = [permissions.AllowAny]
+
+    EMAIL_DATA = {
+        'subject': 'Confirmation Code',
+        'from_email': 'no_reply@example.test',
+        'fail_silently': True
+    }
+
+    def _send_email(self, recipient:str, confirmation_code: str):
+        message = f'There is your confirmation code {confirmation_code}'
+        send_mail(recipient_list=[recipient], message=message, **self.EMAIL_DATA)
 
     def perform_create(self, serializer):
         """Сохраняет код подтверждения в поле юзера
@@ -37,9 +43,23 @@ class SignupView(CreateAPIView):
         confirmation_code = get_random_string(15)
         serializer.save(confirmation_code=confirmation_code)
 
-        send_mail(recipient_list=[serializer.data.get('email')],
-                  message=f'There is your confirmation code {confirmation_code}',
-                  **self.EMAIL_DATA)
+        self._send_email(recipient=serializer.data.get('email'),
+                         confirmation_code=confirmation_code)
+        
+    def create(self, request, *args, **kwargs):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        if User.objects.filter(username=username).count():
+            user = User.objects.get(username=username)
+            if user.email != email:
+                raise ValidationError
+            confirmation_code = get_random_string(15)
+            user.confirmation_code = confirmation_code
+            user.save()
+            self._send_email(recipient=email, confirmation_code=confirmation_code)
+            return Response({'username!': username, 'email': email}, 
+                            status=HTTP_200_OK) 
+        return super().create(request, *args, **kwargs)
 
 
 @api_view(['POST']) 
