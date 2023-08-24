@@ -1,4 +1,5 @@
 import csv
+import sys
 
 from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
@@ -16,8 +17,22 @@ class Command(BaseCommand):
     USER_ROLES = {'user': 1, 'moderator': 2, 'admin': 3}
 
     def handle(self, *args, **options):
-        for model, file_name in self.MODELS_FILE_NAMES.items():
-            self.__add_csv_files_to_db__(model, file_name)
+        if self.__check_models_objects__():
+            for model, file_name in self.MODELS_FILE_NAMES.items():
+                self.__add_csv_files_to_db__(model, file_name)
+        else:
+            sys.exit()
+
+    @classmethod
+    def __check_models_objects__(cls):
+        exists_objects_models = [m.__name__ for m in cls.MODELS_FILE_NAMES if m.objects.exists()]
+        if exists_objects_models:
+            answer = input(f'В ваших моделях {", ".join(exists_objects_models)} уже есть данные.\n'
+                           'Продолжение операции может привести к конфликтам.\n'
+                           'Продолжить? y/n: ')
+            if answer.lower() != 'y':
+                return False
+        return True
 
     @classmethod
     def __add_csv_files_to_db__(cls, model, file_name: str):
