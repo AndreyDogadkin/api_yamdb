@@ -25,6 +25,7 @@ class Review(models.Model):
         verbose_name='Автор отзыва'
     )
     score = models.SmallIntegerField(
+        validators=(validate_score_or_rating,),
         verbose_name='Оценка произведения пользователем'
     )
     pub_date = models.DateTimeField(
