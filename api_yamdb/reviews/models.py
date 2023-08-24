@@ -117,7 +117,6 @@ class Title(models.Model):
         verbose_name='Год выпуска'
     )
     rating = models.PositiveSmallIntegerField(
-        default=models.SET_NULL,
         null=True,
         validators=(validate_score_or_rating,),
         verbose_name='Рейтинг'
