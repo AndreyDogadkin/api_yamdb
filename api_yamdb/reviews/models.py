@@ -1,8 +1,7 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 
 from .validators import validate_title_year, validate_score_or_rating
-
 
 User = get_user_model()
 
@@ -118,7 +117,7 @@ class Title(models.Model):
     )
     rating = models.PositiveSmallIntegerField(
         null=True,
-        validators=(validate_score_or_rating,),
+        validators=[validate_score_or_rating,],
         verbose_name='Рейтинг'
     )
     description = models.TextField(

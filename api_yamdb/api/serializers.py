@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from reviews.models import Title, Genre, Category, GenreTitle
+from reviews.models import Title, Genre, Category
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -19,8 +19,13 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
 
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
+    genre = serializers.SlugRelatedField(required=True,
+                                         queryset=Genre.objects.all(),
+                                         slug_field='slug',
+                                         many=True)
+    category = serializers.SlugRelatedField(required=True,
+                                            queryset=Category.objects.all(),
+                                            slug_field='slug')
 
     class Meta:
         model = Title
@@ -32,15 +37,8 @@ class TitleSerializer(serializers.ModelSerializer):
                   'genre',
                   'category',)
 
-    def create(self, validated_data):
-        # это нужно будет тестировать, не уверен в этой функции
-        genres = validated_data.pop('genre')
-        category, _ = Category.objects.get(**validated_data.pop('category'))
-        title = Title.objects.create(**validated_data, category=category)
-
-        for genre in genres:
-            current_genre, _ = Genre.objects.get(**genre)
-            GenreTitle.objects.create(
-                genre=current_genre, title=title
-            )
-        return title
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['category'] = CategorySerializer(instance.category).data
+        response['genre'] = [GenreSerializer(i).data for i in instance.genre.all()]
+        return response
