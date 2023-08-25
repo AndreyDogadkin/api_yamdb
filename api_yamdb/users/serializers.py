@@ -6,6 +6,12 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+
+    def validate_user(self, user):
+        if user.username == "me":
+            raise serializers.ValidationError('username "me" is not allowed')
+        return user
+
     class Meta:
         model = User
         fields = ('username', 'email', 'first_name',
@@ -13,6 +19,12 @@ class UserSerializer(serializers.ModelSerializer):
         lookup_field = 'username'
         optional_fields = ('first_name', 'last_name',
                            'bio', 'role')
+        
+
+class MeSerializer(UserSerializer):
+
+    class Meta(UserSerializer.Meta):
+        read_only_fields = ('role',)
 
 
 class UserSerializerForAuth(serializers.ModelSerializer):

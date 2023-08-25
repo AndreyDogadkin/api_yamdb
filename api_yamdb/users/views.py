@@ -1,8 +1,7 @@
-from typing import Any
 from rest_framework.generics import CreateAPIView
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
-from users.serializers import UserSerializerForAuth, UserSerializer
+from users.serializers import UserSerializerForAuth, UserSerializer, MeSerializer
 from django.core.mail import send_mail
 from rest_framework import permissions
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -25,6 +24,23 @@ class UserViewSet(ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [AllowAny]
     lookup_field = 'username'
+
+
+@api_view(['PATCH', 'GET'])
+def me_view(request):
+    '''Доступ пользователя к собственной странице'''
+    if request.method == 'PATCH':
+        obj = get_object_or_404(User, username=request.user.username)
+        serializer = MeSerializer(obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=HTTP_200_OK)
+        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+    
+    if request.method == 'GET':
+        obj = get_object_or_404(User, username=request.user.username)
+        serializer = MeSerializer(obj)
+        return Response(serializer.data, status=HTTP_200_OK)
 
 
 class SignupView(CreateAPIView):
