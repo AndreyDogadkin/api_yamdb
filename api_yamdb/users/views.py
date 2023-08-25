@@ -1,7 +1,8 @@
 from typing import Any
 from rest_framework.generics import CreateAPIView
+from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
-from users.serializers import UserSerializerForAuth
+from users.serializers import UserSerializerForAuth, UserSerializer
 from django.core.mail import send_mail
 from rest_framework import permissions
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -16,6 +17,14 @@ from rest_framework.exceptions import ValidationError
 
 
 User = get_user_model()
+
+
+class UserViewSet(ModelViewSet):
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'username'
 
 
 class SignupView(CreateAPIView):
@@ -57,7 +66,7 @@ class SignupView(CreateAPIView):
             user.confirmation_code = confirmation_code
             user.save()
             self._send_email(recipient=email, confirmation_code=confirmation_code)
-            return Response({'username!': username, 'email': email}, 
+            return Response({'username': username, 'email': email}, 
                             status=HTTP_200_OK) 
         return super().create(request, *args, **kwargs)
 

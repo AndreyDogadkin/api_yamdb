@@ -5,6 +5,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name',
+                  'last_name', 'bio', 'role')
+        lookup_field = 'username'
+        optional_fields = ('first_name', 'last_name',
+                           'bio', 'role')
+
+
 class UserSerializerForAuth(serializers.ModelSerializer):
     confirmation_code = serializers.CharField(max_length=20,
                                               write_only=True,

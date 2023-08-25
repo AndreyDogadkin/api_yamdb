@@ -10,7 +10,7 @@ class User(AbstractUser):
         ('admin', 'admin'),
     )
 
-    role = models.CharField(choices=ROLE_CHOICES, default='user')
+    role = models.CharField(choices=ROLE_CHOICES, default='user', max_length=20)
     bio = models.TextField(verbose_name='Биография', blank=True)
     confirmation_code = models.CharField(max_length=20, blank=True)
     email = models.EmailField(unique=True)
