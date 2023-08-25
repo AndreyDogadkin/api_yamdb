@@ -11,11 +11,7 @@ class UserSerializerForAuth(serializers.ModelSerializer):
                                               required=False)
 
     def create(self, validated_data):
-        user = User.objects.create_user(
-            username=validated_data['username'],
-            email=validated_data['email'],
-            confirmation_code=validated_data['confirmation_code']
-        )
+        user = User.objects.create_user(**validated_data)
         return user
 
     def validate_user(self, user):
