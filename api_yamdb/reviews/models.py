@@ -141,6 +141,9 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+    def get_genre(self):
+        return ", ".join([str(p) for p in self.genre.all()])
+
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'произведения'
@@ -152,8 +155,13 @@ class GenreTitle(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.genre.name
+
     class Meta:
         constraints = (models.UniqueConstraint(
             fields=('title', 'genre'),
             name='genre_title_uniq'),
         )
+        verbose_name = 'Категория произведения'
+        verbose_name_plural = 'Категории произведений'
