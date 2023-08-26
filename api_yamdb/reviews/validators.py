@@ -15,7 +15,7 @@ def validate_score_or_rating(value):
 def validate_title_year(value):
     """Валидатор для года."""
     # Используем в модели Title.
-    if 0 > value > datetime.date.today().year:
+    if value > datetime.date.today().year or value < 1:
         raise ValidationError(
             'Нельзя добавить неизданное произведение.'
         )
