@@ -44,10 +44,3 @@ class UserSerializerForAuth(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('username', 'email', 'confirmation_code')
-
-
-class ConfirmationSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('username', 'confirmation_code')
