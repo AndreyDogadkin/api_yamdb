@@ -6,11 +6,11 @@ from api.pagination import TitleCategoryGenrePagination
 
 class ListCreateDeleteViewSet(mixins.CreateModelMixin,
                               mixins.ListModelMixin,
-                              viewsets.ViewSetMixin,
-                              generics.DestroyAPIView,
-                              generics.GenericAPIView):
+                              mixins.DestroyModelMixin,
+                              viewsets.GenericViewSet):
 
     permission_classes = []
     pagination_class = TitleCategoryGenrePagination
     filter_backends = (SearchFilter,)
     search_fields = ('^name',)
+    lookup_field = 'slug'

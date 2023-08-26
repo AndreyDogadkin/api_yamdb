@@ -14,7 +14,6 @@ class Command(BaseCommand):
     MODELS_FILE_NAMES = {Category: 'category', Genre: 'genre',
                          Title: 'titles', GenreTitle: 'genre_title',
                          User: 'users', Review: 'review', Comment: 'comments'}
-    USER_ROLES = {'user': 1, 'moderator': 2, 'admin': 3}
 
     def handle(self, *args, **options):
         if self.__check_models_objects__():
@@ -44,8 +43,7 @@ class Command(BaseCommand):
                     category = row.pop('category')
                     model.objects.create(**row, category_id=category)
                 elif model is User:
-                    role = cls.USER_ROLES.get(row.pop('role'))
-                    model.objects.create(**row, role=role)
+                    model.objects.create(**row)
                 elif model in (Review, Comment):
                     author = row.pop('author')
                     model.objects.create(**row, author_id=author)

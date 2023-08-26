@@ -36,18 +36,8 @@ class CategoryViewSet(ListCreateDeleteViewSet):
     queryset = Category.objects.all().order_by('id')
     serializer_class = CategorySerializer
 
-    def destroy(self, request, *args, **kwargs):
-        instance = get_object_or_404(Category, slug=kwargs.get('pk'))
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class GenreViewSet(ListCreateDeleteViewSet):
 
     queryset = Genre.objects.all().order_by('id')
     serializer_class = GenreSerializer
-
-    def destroy(self, request, *args, **kwargs):
-        instance = get_object_or_404(Genre, slug=kwargs.get('pk'))
-        self.perform_destroy(instance)
-        return Response(status=status.HTTP_204_NO_CONTENT)
