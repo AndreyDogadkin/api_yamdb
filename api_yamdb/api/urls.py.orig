@@ -9,6 +9,10 @@ router.register(prefix='categories', viewset=CategoryViewSet)
 router.register(prefix='genres', viewset=GenreViewSet)
 
 urlpatterns = [
+<<<<<<< HEAD
     path('v1/', include('users.urls')),
+=======
+    path('v1/auth/', include('users.urls')),
     path('v1/', include(router.urls)),
+>>>>>>> develop
 ]
