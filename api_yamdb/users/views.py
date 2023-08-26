@@ -14,7 +14,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.utils.crypto import get_random_string
 from rest_framework.exceptions import ValidationError
-from users.permissions import IsAdmin
+from users.permissions import IsAdminOrHigher
 
 
 User = get_user_model()
@@ -25,11 +25,11 @@ class UserViewSet(ModelViewSet):
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAdminOrHigher]
     lookup_field = 'username'
     filter_backends = [SearchFilter]
     search_fields = ['username']
-    http_method_names = ['get', 'patch', 'head', 'delete', 'create']
+    http_method_names = ['get', 'patch', 'head', 'delete', 'create', 'post']
 
 
 @api_view(['PATCH', 'GET'])
