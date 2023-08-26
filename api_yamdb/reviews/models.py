@@ -163,5 +163,5 @@ class GenreTitle(models.Model):
             fields=('title', 'genre'),
             name='genre_title_uniq'),
         )
-        verbose_name = 'Категория произведения'
-        verbose_name_plural = 'Категории произведений'
+        verbose_name = 'Жанр произведения'
+        verbose_name_plural = 'Жанры произведений'
