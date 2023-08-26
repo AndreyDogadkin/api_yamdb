@@ -7,10 +7,10 @@ User = get_user_model()
 
 class UserSerializer(serializers.ModelSerializer):
 
-    def validate_user(self, user):
-        if user.username == "me":
+    def validate_username(self, value):
+        if value == "me":
             raise serializers.ValidationError('username "me" is not allowed')
-        return user
+        return value
 
     class Meta:
         model = User
@@ -36,11 +36,18 @@ class UserSerializerForAuth(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
-    def validate_user(self, user):
-        if user.username == "me":
+    def validate_username(self, value):
+        if value == "me":
             raise serializers.ValidationError('username "me" is not allowed')
-        return user
+        return value
 
     class Meta:
         model = User
         fields = ('username', 'email', 'confirmation_code')
+
+
+class ConfirmationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('username', 'confirmation_code')

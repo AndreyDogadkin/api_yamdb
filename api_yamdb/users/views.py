@@ -3,7 +3,7 @@ from rest_framework.filters import SearchFilter
 from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
 from users.serializers import (UserSerializerForAuth, UserSerializer,
-                               MeSerializer)
+                               MeSerializer, ConfirmationSerializer)
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -101,12 +101,14 @@ def get_token(request):
     """Получение jwt-токена. Верификация пользователя по 
     коду подтверждения"""
 
-    user = get_object_or_404(User, username=request.data['username'])
-
-    if user.confirmation_code == request.data.get('confirmation_code'):
-        refresh = RefreshToken.for_user(user)
-        return Response({'token': str(refresh.access_token)},
-                        status=HTTP_200_OK) 
+    serializer = ConfirmationSerializer(data=request.data)
+    if serializer.is_valid():
+        user = get_object_or_404(User, username=request.data['username'])
+        if user.confirmation_code == request.data.get(['confirmation_code']):
+            refresh = RefreshToken.for_user(user)
+            return Response({'token': str(refresh.access_token)},
+                            status=HTTP_200_OK) 
     
-    return Response({'error': 'confirmation_code is not valid'},
-                    status=HTTP_400_BAD_REQUEST) 
+        return Response({'error': 'confirmation_code is not valid'},
+                        status=HTTP_400_BAD_REQUEST) 
+    return Response(serializer.errors, status=HTTP_400_BAD_REQUEST)
