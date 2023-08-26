@@ -1,7 +1,7 @@
+from rest_framework.exceptions import ValidationError
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
 from api_yamdb.reviews.models import Title, Genre, Category, GenreTitle, Review, Comment
-from rest_framework.exceptions import ParseError
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -74,9 +74,7 @@ class ReviewSerializer(serializers.ModelSerializer):
             self.context['request'].method == 'POST'
             and Review.objects.filter(author=user, title=title).exists()
         ):
-            raise ParseError(
-                'Возможен только один отзыв на произведение!'
-            )
+            raise ValidationError('Вы уже оставляли свой отзыв!')
         return data
 
 
