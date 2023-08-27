@@ -1,7 +1,7 @@
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, ParseError
 from rest_framework import serializers
 from django.shortcuts import get_object_or_404
-from api_yamdb.reviews.models import Title, Genre, Category, GenreTitle, Review, Comment
+from reviews.models import Title, Genre, Category, GenreTitle, Review, Comment
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -20,8 +20,13 @@ class GenreSerializer(serializers.ModelSerializer):
 
 class TitleSerializer(serializers.ModelSerializer):
 
-    genre = GenreSerializer(many=True)
-    category = CategorySerializer()
+    genre = serializers.SlugRelatedField(required=True,
+                                         queryset=Genre.objects.all(),
+                                         slug_field='slug',
+                                         many=True)
+    category = serializers.SlugRelatedField(required=True,
+                                            queryset=Category.objects.all(),
+                                            slug_field='slug')
 
     class Meta:
         model = Title
@@ -51,6 +56,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     author = serializers.SlugRelatedField(
         slug_field='username', read_only=True
     )
+
     title = serializers.SlugRelatedField(
         slug_field='name', read_only=True
     )
@@ -58,12 +64,7 @@ class ReviewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = '__all__'
         model = Review
-    # Не уверен что правильная валидация
-    #Эта валидация извлекает значение параметра title_id из запроса,
-    #который был передан сериализатору. Контекст запроса содержит 
-    #информацию о запросе, включая параметры URL. В данном случае,
-    #мы извлекаем значение параметра title_id из контекста запроса и 
-    #сохраняем его в переменной title_id для дальнейшего использования.
+
     def validate(self, data):
         title_id = (
             self.context['request'].parser_context['kwargs']['title_id']
@@ -74,7 +75,9 @@ class ReviewSerializer(serializers.ModelSerializer):
             self.context['request'].method == 'POST'
             and Review.objects.filter(author=user, title=title).exists()
         ):
-            raise ValidationError('Вы уже оставляли свой отзыв!')
+            raise ParseError(
+                'Возможен только один отзыв на произведение!'
+            )
         return data
 
 

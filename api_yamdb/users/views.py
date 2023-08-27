@@ -1,21 +1,54 @@
-from typing import Any
 from rest_framework.generics import CreateAPIView
+from rest_framework.filters import SearchFilter
+from rest_framework.viewsets import ModelViewSet
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializerForAuth
+from users.serializers import (UserSerializerForAuth, UserSerializer,
+                               MeSerializer)
 from django.core.mail import send_mail
-from rest_framework import permissions
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from django.utils.crypto import get_random_string
 from rest_framework.exceptions import ValidationError
+from users.permissions import IsAdminOrHigher
 
 
 User = get_user_model()
+
+
+class UserViewSet(ModelViewSet):
+    '''Управление страницей другого пользователя'''
+
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [IsAdminOrHigher]
+    lookup_field = 'username'
+    filter_backends = [SearchFilter]
+    search_fields = ['username']
+    http_method_names = ['get', 'patch', 'head', 'delete', 'create', 'post']
+
+
+@api_view(['PATCH', 'GET'])
+@permission_classes([IsAuthenticated])
+def me_view(request):
+    '''Доступ пользователя к собственной странице'''
+
+    if request.method == 'PATCH':
+        obj = get_object_or_404(User, username=request.user.username)
+        serializer = MeSerializer(obj, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=HTTP_200_OK)
+        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+    
+    if request.method == 'GET':
+        obj = get_object_or_404(User, username=request.user.username)
+        serializer = MeSerializer(obj)
+        return Response(serializer.data, status=HTTP_200_OK)
 
 
 class SignupView(CreateAPIView):
@@ -25,7 +58,7 @@ class SignupView(CreateAPIView):
     
     queryset = User.objects.all()
     serializer_class = UserSerializerForAuth
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [AllowAny]
 
     EMAIL_DATA = {
         'subject': 'Confirmation Code',
@@ -57,7 +90,7 @@ class SignupView(CreateAPIView):
             user.confirmation_code = confirmation_code
             user.save()
             self._send_email(recipient=email, confirmation_code=confirmation_code)
-            return Response({'username!': username, 'email': email}, 
+            return Response({'username': username, 'email': email}, 
                             status=HTTP_200_OK) 
         return super().create(request, *args, **kwargs)
 
@@ -68,12 +101,16 @@ def get_token(request):
     """Получение jwt-токена. Верификация пользователя по 
     коду подтверждения"""
 
-    user = get_object_or_404(User, username=request.data['username'])
+    username = request.data.get('username')
+    confirmation_code = request.data.get('confirmation_code')
 
-    if user.confirmation_code == request.data.get('confirmation_code'):
-        refresh = RefreshToken.for_user(user)
-        return Response({'token': str(refresh.access_token)},
-                        status=HTTP_200_OK) 
+    if confirmation_code and username:
+        user = get_object_or_404(User, username=username)
+        if user.confirmation_code == confirmation_code:
+            refresh = RefreshToken.for_user(user)
+            return Response({'token': str(refresh.access_token)},
+                            status=HTTP_200_OK) 
     
-    return Response({'error': 'confirmation_code is not valid'},
-                    status=HTTP_400_BAD_REQUEST) 
+        return Response({'error': 'confirmation_code is not valid'},
+                        status=HTTP_400_BAD_REQUEST) 
+    raise ValidationError(detail="username and confirmation_code are required")

@@ -1,8 +1,7 @@
-from django.db import models
 from django.contrib.auth import get_user_model
+from django.db import models
 
 from .validators import validate_title_year, validate_score_or_rating
-
 
 User = get_user_model()
 
@@ -35,8 +34,13 @@ class Review(models.Model):
 
     class Meta:
         ordering = ('title',)
-        verbose_name = 'Отзыв. model Review'
-        verbose_name_plural = 'Отзывы. model Review'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+    
+    def __str__(self):
+        return (
+            f'{self.author.username[:15]}, {self.text[:30]}, {self.score}'
+        )
 
 
 class Comment(models.Model):
@@ -63,8 +67,11 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ('review', 'author')
-        verbose_name = 'Комментарий. model Comment'
-        verbose_name_plural = 'Комментарии. model Comment'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+    
+    def __str__(self):
+        return f'{self.author.username[:15]}, {self.text[:30]}'
 
 
 class BaseCategoryGenreModel(models.Model):
@@ -118,9 +125,8 @@ class Title(models.Model):
         verbose_name='Год выпуска'
     )
     rating = models.PositiveSmallIntegerField(
-        default=models.SET_NULL,
         null=True,
-        validators=(validate_score_or_rating,),
+        validators=[validate_score_or_rating,],
         verbose_name='Рейтинг'
     )
     description = models.TextField(
@@ -144,6 +150,9 @@ class Title(models.Model):
     def __str__(self):
         return self.name
 
+    def get_genre(self):
+        return ", ".join([str(p) for p in self.genre.all()])
+
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'произведения'
@@ -155,8 +164,13 @@ class GenreTitle(models.Model):
     title = models.ForeignKey(Title, on_delete=models.CASCADE)
     genre = models.ForeignKey(Genre, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.genre.name
+
     class Meta:
         constraints = (models.UniqueConstraint(
             fields=('title', 'genre'),
             name='genre_title_uniq'),
         )
+        verbose_name = 'Жанр произведения'
+        verbose_name_plural = 'Жанры произведений'
