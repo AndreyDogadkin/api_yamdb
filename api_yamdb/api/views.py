@@ -3,12 +3,14 @@ from rest_framework import viewsets, status
 from rest_framework.filters import SearchFilter
 from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.permissions import AllowAny
 from users.permissions import IsAdminOrHigherOrReadOnly
 
 from reviews.models import Title, Category, Genre
 from .pagination import TitleCategoryGenrePagination
 from .serializers import TitleSerializer, CategorySerializer, GenreSerializer
 from .viewsets import ListCreateDeleteViewSet
+from .filters import TitleFilterSet
 
 
 class TitleViewSet(viewsets.ModelViewSet):
@@ -24,12 +26,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         '^name',
         'year'
     )
-    filterset_fields = (
-        'genre',
-        'category',
-        'name',
-        'year'
-    )
+    filterset_class = TitleFilterSet
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
