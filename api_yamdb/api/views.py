@@ -1,8 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
-from rest_framework.generics import get_object_or_404
-from rest_framework.response import Response
 
 from reviews.models import Title, Category, Genre
 from .pagination import TitleCategoryGenrePagination
@@ -12,7 +10,7 @@ from .viewsets import ListCreateDeleteViewSet
 
 class TitleViewSet(viewsets.ModelViewSet):
 
-    queryset = Title.objects.all().order_by('id')
+    queryset = Title.objects.all()
     serializer_class = TitleSerializer
     permission_classes = []
     pagination_class = TitleCategoryGenrePagination
@@ -33,11 +31,11 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(ListCreateDeleteViewSet):
 
-    queryset = Category.objects.all().order_by('id')
+    queryset = Category.objects.all()
     serializer_class = CategorySerializer
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
 
-    queryset = Genre.objects.all().order_by('id')
+    queryset = Genre.objects.all()
     serializer_class = GenreSerializer
