@@ -83,7 +83,7 @@ class BaseCategoryGenreModel(models.Model):
 
 
 class Category(BaseCategoryGenreModel):
-    """ Модель категорий. """
+    """Модель категорий."""
 
     def __str__(self):
         return self.name

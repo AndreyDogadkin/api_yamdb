@@ -10,6 +10,7 @@ from .filters import TitleFilterSet
 
 
 class TitleViewSet(viewsets.ModelViewSet):
+    """CRUD для произведений."""
 
     queryset = Title.objects.all()
     serializer_class = TitleSerializer
@@ -26,6 +27,7 @@ class TitleViewSet(viewsets.ModelViewSet):
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
+    """Создание, представление и удаление категорий."""
 
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -33,6 +35,7 @@ class CategoryViewSet(ListCreateDeleteViewSet):
 
 
 class GenreViewSet(ListCreateDeleteViewSet):
+    """Создание, представление и удаление жанров."""
 
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
