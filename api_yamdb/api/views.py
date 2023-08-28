@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.filters import SearchFilter
 from reviews.models import Title, Category, Genre
+from users.permissions import IsAdminOrHigherOrReadOnly
 from .pagination import TitleCategoryGenrePagination
 from .serializers import TitleSerializer, CategorySerializer, GenreSerializer
 from .viewsets import ListCreateDeleteViewSet
