@@ -24,7 +24,8 @@ class Review(models.Model):
         verbose_name='Автор отзыва'
     )
     score = models.SmallIntegerField(
-        verbose_name='Оценка произведения пользователем'
+        verbose_name='Оценка произведения пользователем',
+        validators=[validate_score_or_rating, ]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -43,7 +44,7 @@ class Review(models.Model):
     
     def __str__(self):
         return (
-            f'{self.author.username[:15]}, {self.text[:30]}, {self.score}'
+            f'Отзыв к произведению {self.title} от {self.author}'
         )
 
 
@@ -73,9 +74,6 @@ class Comment(models.Model):
         ordering = ('review', 'author')
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
-
-    def __str__(self):
-        return f'{self.author.username[:15]}, {self.text[:30]}'
 
 
 class BaseCategoryGenreModel(models.Model):
@@ -132,7 +130,7 @@ class Title(models.Model):
     )
     rating = models.PositiveSmallIntegerField(
         null=True,
-        validators=[validate_score_or_rating,],
+        validators=[validate_score_or_rating, ],
         verbose_name='Рейтинг'
     )
     description = models.TextField(
