@@ -33,8 +33,18 @@ class Review(models.Model):
 
     class Meta:
         ordering = ('title',)
-        verbose_name = 'Отзыв. model Review'
-        verbose_name_plural = 'Отзывы. model Review'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+        constraints = (models.UniqueConstraint(
+            fields=('title', 'author'),
+            name='author_title_uniq'),
+        )
+    
+    def __str__(self):
+        return (
+            f'{self.author.username[:15]}, {self.text[:30]}, {self.score}'
+        )
 
 
 class Comment(models.Model):
@@ -61,8 +71,11 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ('review', 'author')
-        verbose_name = 'Комментарий. model Comment'
-        verbose_name_plural = 'Комментарии. model Comment'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+    def __str__(self):
+        return f'{self.author.username[:15]}, {self.text[:30]}'
 
 
 class BaseCategoryGenreModel(models.Model):
