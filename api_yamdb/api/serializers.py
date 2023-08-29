@@ -42,7 +42,8 @@ class TitleSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['category'] = CategorySerializer(instance.category).data
-        response['genre'] = [GenreSerializer(i).data for i in instance.genre.all()]
+        response['genre'] = [GenreSerializer(i).data
+                             for i in instance.genre.all()]
         return response
 
 

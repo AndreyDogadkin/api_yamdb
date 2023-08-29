@@ -10,8 +10,9 @@ from users.permissions import IsAdminOrHigherOrReadOnly
 from .filters import TitleFilterSet
 from .pagination import TitleCategoryGenrePagination
 from .permissions import IsAuthorOrModerOrAdmin
-from .serializers import (TitleSerializer, CategorySerializer, GenreSerializer,
-                          ReviewSerializer, CommentSerializer)
+from .serializers import (TitleSerializer, CategorySerializer,
+                          GenreSerializer, ReviewSerializer,
+                          CommentSerializer)
 from .viewsets import ListCreateDeleteViewSet
 
 
@@ -62,8 +63,10 @@ class ReviewViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
         serializer.save(author=self.request.user, title=title)
-        score_count_sum = Review.objects.filter(title=title).aggregate(Sum('score'), Count('score'))
-        rating = round(score_count_sum.get('score__sum') / score_count_sum.get('score__count'))
+        score_count_sum = Review.objects.filter(
+            title=title).aggregate(Sum('score'), Count('score'))
+        rating = round(score_count_sum.get('score__sum')
+                       / score_count_sum.get('score__count'))
         title.rating = rating
         title.save()
 
