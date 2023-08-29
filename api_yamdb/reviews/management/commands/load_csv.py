@@ -24,11 +24,14 @@ class Command(BaseCommand):
 
     @classmethod
     def __check_models_objects__(cls):
-        exists_objects_models = [m.__name__ for m in cls.MODELS_FILE_NAMES if m.objects.exists()]
+        exists_objects_models = [m.__name__ for m in cls.MODELS_FILE_NAMES
+                                 if m.objects.exists()]
         if exists_objects_models:
-            answer = input(f'В ваших моделях {", ".join(exists_objects_models)} уже есть данные.\n'
-                           'Продолжение операции может привести к конфликтам.\n'
-                           'Продолжить? y/n: ')
+            answer = input(
+                f'В ваших моделях {", ".join(exists_objects_models)} '
+                f'уже есть данные.\n'
+                'Продолжение операции может привести к конфликтам.\n'
+                'Продолжить? y/n: ')
             if answer.lower() != 'y':
                 return False
         return True

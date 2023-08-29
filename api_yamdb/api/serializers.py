@@ -1,7 +1,8 @@
-from rest_framework import serializers
 from django.shortcuts import get_object_or_404
+from rest_framework import serializers
+from rest_framework.exceptions import ValidationError
+
 from reviews.models import Title, Genre, Category, Review, Comment
-from rest_framework.exceptions import ParseError, ValidationError
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -41,7 +42,8 @@ class TitleSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['category'] = CategorySerializer(instance.category).data
-        response['genre'] = [GenreSerializer(i).data for i in instance.genre.all()]
+        response['genre'] = [GenreSerializer(i).data
+                             for i in instance.genre.all()]
         return response
 
 
