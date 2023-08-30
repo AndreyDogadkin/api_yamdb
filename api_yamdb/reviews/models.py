@@ -41,7 +41,7 @@ class Review(models.Model):
             fields=('title', 'author'),
             name='author_title_uniq'),
         )
-    
+
     def __str__(self):
         return (
             f'Отзыв к произведению {self.title} от {self.author}'

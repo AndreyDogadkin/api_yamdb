@@ -19,7 +19,7 @@ class UserSerializer(serializers.ModelSerializer):
         lookup_field = 'username'
         optional_fields = ('first_name', 'last_name',
                            'bio', 'role')
-        
+
 
 class MeSerializer(UserSerializer):
 
