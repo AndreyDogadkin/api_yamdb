@@ -21,7 +21,7 @@ User = get_user_model()
 
 
 class UserViewSet(ModelViewSet):
-    '''Управление страницей другого пользователя'''
+    """Управление страницей другого пользователя."""
 
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -35,7 +35,7 @@ class UserViewSet(ModelViewSet):
 @api_view(['PATCH', 'GET'])
 @permission_classes([IsAuthenticated])
 def me_view(request):
-    '''Доступ пользователя к собственной странице'''
+    """Доступ пользователя к собственной странице."""
 
     if request.method == 'PATCH':
         obj = get_object_or_404(User, username=request.user.username)
@@ -52,9 +52,9 @@ def me_view(request):
 
 
 class SignupView(CreateAPIView):
-    '''Создание пользователя.
+    """.Создание пользователя.
     Сразу после создания на указанный адрес отправляется 
-    письмо для подтверждения'''
+    письмо для подтверждения."""
     
     queryset = User.objects.all()
     serializer_class = UserSerializerForAuth
@@ -92,14 +92,16 @@ class SignupView(CreateAPIView):
             self._send_email(recipient=email, confirmation_code=confirmation_code)
             return Response({'username': username, 'email': email}, 
                             status=HTTP_200_OK) 
-        return super().create(request, *args, **kwargs)
+        response = super().create(request, *args, **kwargs)
+        response.status_code = HTTP_200_OK
+        return response
 
 
 @api_view(['POST']) 
 @permission_classes([AllowAny])
 def get_token(request):
     """Получение jwt-токена. Верификация пользователя по 
-    коду подтверждения"""
+    коду подтверждения."""
 
     username = request.data.get('username')
     confirmation_code = request.data.get('confirmation_code')
