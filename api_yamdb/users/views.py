@@ -44,7 +44,7 @@ def me_view(request):
             serializer.save()
             return Response(serializer.data, status=HTTP_200_OK)
         return Response(serializer.errors, HTTP_400_BAD_REQUEST)
-    
+
     if request.method == 'GET':
         obj = get_object_or_404(User, username=request.user.username)
         serializer = MeSerializer(obj)
@@ -53,9 +53,9 @@ def me_view(request):
 
 class SignupView(CreateAPIView):
     """.Создание пользователя.
-    Сразу после создания на указанный адрес отправляется 
+    Сразу после создания на указанный адрес отправляется
     письмо для подтверждения."""
-    
+
     queryset = User.objects.all()
     serializer_class = UserSerializerForAuth
     permission_classes = [AllowAny]
@@ -66,9 +66,10 @@ class SignupView(CreateAPIView):
         'fail_silently': True
     }
 
-    def _send_email(self, recipient:str, confirmation_code: str):
+    def _send_email(self, recipient: str, confirmation_code: str):
         message = f'There is your confirmation code {confirmation_code}'
-        send_mail(recipient_list=[recipient], message=message, **self.EMAIL_DATA)
+        send_mail(recipient_list=[recipient], message=message,
+                  **self.EMAIL_DATA)
 
     def perform_create(self, serializer):
         """Сохраняет код подтверждения в поле юзера
@@ -78,7 +79,7 @@ class SignupView(CreateAPIView):
 
         self._send_email(recipient=serializer.data.get('email'),
                          confirmation_code=confirmation_code)
-        
+
     def create(self, request, *args, **kwargs):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -89,18 +90,19 @@ class SignupView(CreateAPIView):
             confirmation_code = get_random_string(15)
             user.confirmation_code = confirmation_code
             user.save()
-            self._send_email(recipient=email, confirmation_code=confirmation_code)
-            return Response({'username': username, 'email': email}, 
-                            status=HTTP_200_OK) 
+            self._send_email(recipient=email, 
+                             confirmation_code=confirmation_code)
+            return Response({'username': username, 'email': email},
+                            status=HTTP_200_OK)
         response = super().create(request, *args, **kwargs)
         response.status_code = HTTP_200_OK
         return response
 
 
-@api_view(['POST']) 
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def get_token(request):
-    """Получение jwt-токена. Верификация пользователя по 
+    """Получение jwt-токена. Верификация пользователя по
     коду подтверждения."""
 
     username = request.data.get('username')
@@ -111,8 +113,8 @@ def get_token(request):
         if user.confirmation_code == confirmation_code:
             refresh = RefreshToken.for_user(user)
             return Response({'token': str(refresh.access_token)},
-                            status=HTTP_200_OK) 
-    
+                            status=HTTP_200_OK)
+
         return Response({'error': 'confirmation_code is not valid'},
-                        status=HTTP_400_BAD_REQUEST) 
+                        status=HTTP_400_BAD_REQUEST)
     raise ValidationError(detail="username and confirmation_code are required")

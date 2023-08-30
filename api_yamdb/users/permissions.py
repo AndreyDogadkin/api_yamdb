@@ -13,7 +13,7 @@ class IsAuthorOrStaff(IsAuthenticated):
 
     def has_object_permission(self, request, view, obj):
         return obj.author == request.user
-    
+
 
 class IsAdminOrHigher(IsAuthenticated):
 
@@ -24,7 +24,7 @@ class IsAdminOrHigher(IsAuthenticated):
                 or request.user.role == 'admin'
             )
         )
-    
+
 
 class IsAdminOrHigherOrReadOnly(IsAuthenticated):
 
