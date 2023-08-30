@@ -1,4 +1,3 @@
-from django.shortcuts import get_object_or_404
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -42,8 +41,8 @@ class TitleSerializer(serializers.ModelSerializer):
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['category'] = CategorySerializer(instance.category).data
-        response['genre'] = [GenreSerializer(i).data
-                             for i in instance.genre.all()]
+        response['genre'] = [GenreSerializer(g).data
+                             for g in instance.genre.all()]
         return response
 
 
@@ -52,28 +51,17 @@ class ReviewSerializer(serializers.ModelSerializer):
         slug_field='username', read_only=True
     )
 
-    title = serializers.SlugRelatedField(
-        slug_field='name', read_only=True
-    )
-
     class Meta:
-        fields = '__all__'
+        exclude = ('title',)
         model = Review
 
-    def validate(self, data):
-        title_id = (
-            self.context['request'].parser_context['kwargs']['title_id']
-        )
-        title = get_object_or_404(Title, pk=title_id)
-        user = self.context['request'].user
-        if (
-            self.context['request'].method == 'POST'
-            and Review.objects.filter(author=user, title=title).exists()
-        ):
-            raise ValidationError(
-                'Возможен только один отзыв на произведение!'
-            )
-        return data
+    def create(self, validated_data):
+        title = validated_data.get('title')
+        user = validated_data.get('author')
+        if Review.objects.filter(title=title, author=user).exists():
+            raise ValidationError('Возможен только один '
+                                  'отзыв на произведение.')
+        return super().create(validated_data)
 
 
 class CommentSerializer(serializers.ModelSerializer):

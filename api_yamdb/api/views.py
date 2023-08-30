@@ -31,6 +31,7 @@ class TitleViewSet(viewsets.ModelViewSet):
         'year'
     )
     filterset_class = TitleFilterSet
+    http_method_names = ('get', 'patch', 'head', 'delete', 'create', 'post')
 
 
 class CategoryViewSet(ListCreateDeleteViewSet):
@@ -55,6 +56,7 @@ class ReviewViewSet(viewsets.ModelViewSet):
     serializer_class = ReviewSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,
                           IsAuthenticatedOrReadOnly)
+    http_method_names = ('get', 'patch', 'head', 'delete', 'create', 'post')
 
     def get_queryset(self):
         title = get_object_or_404(Title, pk=self.kwargs.get('title_id'))
@@ -77,6 +79,7 @@ class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = (IsAuthorOrModerOrAdmin,
                           IsAuthenticatedOrReadOnly)
+    http_method_names = ('get', 'patch', 'head', 'delete', 'create', 'post')
     
     def get_queryset(self):
         review = get_object_or_404(Review, pk=self.kwargs.get('review_id'))
