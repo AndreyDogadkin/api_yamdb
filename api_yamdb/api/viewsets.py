@@ -8,6 +8,7 @@ class ListCreateDeleteViewSet(mixins.CreateModelMixin,
                               mixins.ListModelMixin,
                               mixins.DestroyModelMixin,
                               viewsets.GenericViewSet):
+    """Базовый ViewSet для создания, представления и удаления."""
 
     permission_classes = []
     pagination_class = TitleCategoryGenrePagination

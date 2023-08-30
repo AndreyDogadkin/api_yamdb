@@ -24,7 +24,8 @@ class Review(models.Model):
         verbose_name='Автор отзыва'
     )
     score = models.SmallIntegerField(
-        verbose_name='Оценка произведения пользователем'
+        verbose_name='Оценка произведения пользователем',
+        validators=[validate_score_or_rating, ]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -33,8 +34,18 @@ class Review(models.Model):
 
     class Meta:
         ordering = ('title',)
-        verbose_name = 'Отзыв. model Review'
-        verbose_name_plural = 'Отзывы. model Review'
+        verbose_name = 'Отзыв'
+        verbose_name_plural = 'Отзывы'
+
+        constraints = (models.UniqueConstraint(
+            fields=('title', 'author'),
+            name='author_title_uniq'),
+        )
+    
+    def __str__(self):
+        return (
+            f'Отзыв к произведению {self.title} от {self.author}'
+        )
 
 
 class Comment(models.Model):
@@ -61,8 +72,8 @@ class Comment(models.Model):
 
     class Meta:
         ordering = ('review', 'author')
-        verbose_name = 'Комментарий. model Comment'
-        verbose_name_plural = 'Комментарии. model Comment'
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
 
 
 class BaseCategoryGenreModel(models.Model):
@@ -83,7 +94,7 @@ class BaseCategoryGenreModel(models.Model):
 
 
 class Category(BaseCategoryGenreModel):
-    """ Модель категорий. """
+    """Модель категорий."""
 
     def __str__(self):
         return self.name
@@ -91,6 +102,7 @@ class Category(BaseCategoryGenreModel):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'категории'
+        ordering = ['id']
 
 
 class Genre(BaseCategoryGenreModel):
@@ -102,6 +114,7 @@ class Genre(BaseCategoryGenreModel):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'жанры'
+        ordering = ['id']
 
 
 class Title(models.Model):
@@ -117,7 +130,7 @@ class Title(models.Model):
     )
     rating = models.PositiveSmallIntegerField(
         null=True,
-        validators=[validate_score_or_rating,],
+        validators=[validate_score_or_rating, ],
         verbose_name='Рейтинг'
     )
     description = models.TextField(
@@ -147,6 +160,7 @@ class Title(models.Model):
     class Meta:
         verbose_name = 'Произведение'
         verbose_name_plural = 'произведения'
+        ordering = ['id']
 
 
 class GenreTitle(models.Model):
