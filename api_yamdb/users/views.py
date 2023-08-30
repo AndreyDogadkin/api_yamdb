@@ -92,7 +92,9 @@ class SignupView(CreateAPIView):
             self._send_email(recipient=email, confirmation_code=confirmation_code)
             return Response({'username': username, 'email': email}, 
                             status=HTTP_200_OK) 
-        return super().create(request, *args, **kwargs)
+        response = super().create(request, *args, **kwargs)
+        response.status_code = HTTP_200_OK
+        return response
 
 
 @api_view(['POST']) 
