@@ -13,7 +13,7 @@ from .permissions import IsAuthorOrModerOrAdmin
 from .serializers import (TitleSerializer, CategorySerializer,
                           GenreSerializer, ReviewSerializer,
                           CommentSerializer)
-from .viewsets import ListCreateDeleteViewSet
+from .viewsets import ListCreateDeleteViewSet, ExcludePutViewSet
 
 
 class TitleViewSet(viewsets.ModelViewSet):
