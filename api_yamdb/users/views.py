@@ -90,7 +90,7 @@ class SignupView(CreateAPIView):
             confirmation_code = get_random_string(15)
             user.confirmation_code = confirmation_code
             user.save()
-            self._send_email(recipient=email, 
+            self._send_email(recipient=email,
                              confirmation_code=confirmation_code)
             return Response({'username': username, 'email': email},
                             status=HTTP_200_OK)
