@@ -12,10 +12,10 @@ from .permissions import IsAuthorOrModerOrAdmin
 from .serializers import (TitleSerializer, CategorySerializer,
                           GenreSerializer, ReviewSerializer,
                           CommentSerializer)
-from .viewsets import ListCreateDeleteViewSet, ExcludePutViewSet
+from .viewsets import ListCreateDeleteViewSet, ExcludePutModelViewSet
 
 
-class TitleViewSet(ExcludePutViewSet):
+class TitleViewSet(ExcludePutModelViewSet):
     """CRUD для произведений."""
 
     queryset = Title.objects.all()
@@ -48,7 +48,7 @@ class GenreViewSet(ListCreateDeleteViewSet):
     permission_classes = (IsAdminOrHigherOrReadOnly,)
 
 
-class ReviewViewSet(ExcludePutViewSet):
+class ReviewViewSet(ExcludePutModelViewSet):
     """Отзывы на произведения."""
 
     serializer_class = ReviewSerializer
@@ -69,7 +69,7 @@ class ReviewViewSet(ExcludePutViewSet):
         title.save()
 
 
-class CommentViewSet(ExcludePutViewSet):
+class CommentViewSet(ExcludePutModelViewSet):
     """Комментарии пользователей."""
 
     serializer_class = CommentSerializer

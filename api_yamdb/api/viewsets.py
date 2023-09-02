@@ -17,13 +17,7 @@ class ListCreateDeleteViewSet(mixins.CreateModelMixin,
     lookup_field = 'slug'
 
 
-class ExcludePutViewSet(mixins.CreateModelMixin,
-                        mixins.RetrieveModelMixin,
-                        mixins.UpdateModelMixin,
-                        mixins.DestroyModelMixin,
-                        mixins.ListModelMixin,
-                        viewsets.GenericViewSet
-                        ):
+class ExcludePutModelViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         if request.method == 'PUT':
