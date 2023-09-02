@@ -31,13 +31,8 @@ class UserViewSet(ModelViewSet):
     search_fields = ['username']
     http_method_names = ['get', 'patch', 'head', 'delete', 'create', 'post']
 
-    def get_permissions(self):
-        if self.action == 'me':
-            return (IsAuthenticated,)
-        return super().get_permissions()
-
     @action(permission_classes=(IsAuthenticated,),
-            detail=True, methods=['patch', 'get'], url_name="me")
+            detail=False, methods=['patch', 'get'], url_name="me")
     def me(self, request, *arg, **kwargs):
         """Доступ пользователя к собственной странице."""
 
