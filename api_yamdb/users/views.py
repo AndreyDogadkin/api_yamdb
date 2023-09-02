@@ -7,7 +7,7 @@ from users.serializers import (UserSerializerForAuth, UserSerializer,
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
@@ -31,24 +31,28 @@ class UserViewSet(ModelViewSet):
     search_fields = ['username']
     http_method_names = ['get', 'patch', 'head', 'delete', 'create', 'post']
 
+    def get_permissions(self):
+        if self.action == 'me':
+            return (IsAuthenticated,)
+        return super().get_permissions()
 
-@api_view(['PATCH', 'GET'])
-@permission_classes([IsAuthenticated])
-def me_view(request):
-    """Доступ пользователя к собственной странице."""
+    @action(permission_classes=(IsAuthenticated,),
+            detail=True, methods=['patch', 'get'], url_name="me")
+    def me(self, request, *arg, **kwargs):
+        """Доступ пользователя к собственной странице."""
 
-    if request.method == 'PATCH':
-        obj = get_object_or_404(User, username=request.user.username)
-        serializer = MeSerializer(obj, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
+        if request.method == 'PATCH':
+            obj = get_object_or_404(User, username=request.user.username)
+            serializer = MeSerializer(obj, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=HTTP_200_OK)
+            return Response(serializer.errors, HTTP_400_BAD_REQUEST)
+
+        if request.method == 'GET':
+            obj = get_object_or_404(User, username=request.user.username)
+            serializer = MeSerializer(obj)
             return Response(serializer.data, status=HTTP_200_OK)
-        return Response(serializer.errors, HTTP_400_BAD_REQUEST)
-
-    if request.method == 'GET':
-        obj = get_object_or_404(User, username=request.user.username)
-        serializer = MeSerializer(obj)
-        return Response(serializer.data, status=HTTP_200_OK)
 
 
 class SignupView(CreateAPIView):
@@ -83,8 +87,8 @@ class SignupView(CreateAPIView):
     def create(self, request, *args, **kwargs):
         username = request.data.get('username')
         email = request.data.get('email')
-        if User.objects.filter(username=username).count():
-            user = User.objects.get(username=username)
+        user = User.objects.filter(username=username).first()
+        if user:
             if user.email != email:
                 raise ValidationError
             confirmation_code = get_random_string(15)

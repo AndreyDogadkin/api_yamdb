@@ -5,12 +5,16 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
+def validate_username(value):
+    if value.lower() == "me":
+        raise serializers.ValidationError('username "me" is not allowed')
+    return value
+
+
 class UserSerializer(serializers.ModelSerializer):
 
     def validate_username(self, value):
-        if value == "me":
-            raise serializers.ValidationError('username "me" is not allowed')
-        return value
+        return validate_username(value)
 
     class Meta:
         model = User
@@ -32,14 +36,12 @@ class UserSerializerForAuth(serializers.ModelSerializer):
                                               write_only=True,
                                               required=False)
 
+    def validate_username(self, value):
+        return validate_username(value)
+
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
-
-    def validate_username(self, value):
-        if value == "me":
-            raise serializers.ValidationError('username "me" is not allowed')
-        return value
 
     class Meta:
         model = User
