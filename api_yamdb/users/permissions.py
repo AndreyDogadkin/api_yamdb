@@ -29,11 +29,11 @@ class IsAdminOrHigher(IsAuthenticated):
 class IsAdminOrHigherOrReadOnly(IsAuthenticated):
 
     def has_permission(self, request, view):
-        if request.method in SAFE_METHODS:
-            return True
         return (
-            super().has_permission(request, view) and (
-                request.user.is_superuser
-                or request.user.role == 'admin'
+            request.method in SAFE_METHODS or (
+                super().has_permission(request, view) and (
+                    request.user.is_superuser
+                    or request.user.role == 'admin'
+                )
             )
         )
