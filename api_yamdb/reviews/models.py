@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
-from .validators import validate_title_year, validate_score_or_rating
+from .validators import validate_title_year
 
 User = get_user_model()
 
@@ -23,9 +24,11 @@ class Review(models.Model):
         related_name='reviews',
         verbose_name='Автор отзыва'
     )
-    score = models.SmallIntegerField(
+    score = models.PositiveSmallIntegerField(
         verbose_name='Оценка произведения пользователем',
-        validators=[validate_score_or_rating, ]
+        validators=[MaxValueValidator(limit_value=10),
+                    MinValueValidator(limit_value=1)
+                    ]
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
@@ -124,14 +127,16 @@ class Title(models.Model):
         max_length=256,
         verbose_name='Название'
     )
-    year = models.IntegerField(
+    year = models.PositiveSmallIntegerField(
         validators=(validate_title_year,),
         verbose_name='Год выпуска'
     )
     rating = models.PositiveSmallIntegerField(
         null=True,
-        validators=[validate_score_or_rating, ],
-        verbose_name='Рейтинг'
+        verbose_name='Рейтинг',
+        validators=[MaxValueValidator(limit_value=10),
+                    MinValueValidator(limit_value=1)
+                    ]
     )
     description = models.TextField(
         blank=True,
